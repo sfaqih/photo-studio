@@ -47,8 +47,8 @@ const PhotoLibrary = ({ customerPhotos, setCustomerPhotos, handleDragStart }) =>
   }
 
   return (
-    <div className="w-3/5">
-                <div className="flex justify-between items-center p-5">
+    <div className="w-2/3">
+                <div className="flex justify-between items-center p-3">
                   <button 
                     className="back-button flex items-center text-pink-500 hover:text-pink-600"
                     onClick={handleBack}
@@ -68,7 +68,7 @@ const PhotoLibrary = ({ customerPhotos, setCustomerPhotos, handleDragStart }) =>
                                         className="relative cursor-pointer p-1 border-0 transition-all duration-200 rounded-xl group"
                                         draggable="true"
                                         onDragStart={(e) => handleDragStart(e, photo)}
-                                        onTouchStart={(e) => handleDragStart(e, photo)}
+                                        // onTouchStart={(e) => handleDragStart(e, photo)}
                                     >
                                         <img
                                             src={photo.preview}

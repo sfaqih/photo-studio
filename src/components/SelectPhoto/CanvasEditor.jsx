@@ -24,11 +24,11 @@ const CanvasEditor = ({
     const stageRef = useRef(null);
     const containerRef = useRef(null);
     const navigate = useNavigate();
-    const scaling = DefaultScale - 0.05;
-    const scalingWidth = DefaultScale - 0.03;
+    const scaling = DefaultScale - 0.00;
+    const scalingWidth = DefaultScale - 0.00;
 
 
-    const { setPhotoStudioSession } = usePhotoStudio();
+    const { photoStudioSession, setPhotoStudioSession } = usePhotoStudio();
 
 
     const [stageSize, setStageSize] = useState({
@@ -97,8 +97,9 @@ const CanvasEditor = ({
                 height: canvasSize.height
             });
         });
-
-        setFrames(selectedTemplate?.frames);
+        console.debug("photoStudioSession: ", photoStudioSession);
+        const frames = photoStudioSession?.frames?.length > 0 ? photoStudioSession.frames : selectedTemplate?.frames;
+        setFrames(frames);
     };
 
 
@@ -186,8 +187,8 @@ const CanvasEditor = ({
         if (!frame.photo) return null;
         console.debug("frame.photo: ", frame.photo)
     
-        const scaledWidth = frame.width * 0.4;
-        const scaledHeight = frame.height * 0.4;
+        const scaledWidth = frame.width * scalingWidth;
+        const scaledHeight = frame.height * scaling;
     
         const scaledX = frame.x * scalingWidth;
         const scaledY = frame.y * scaling;
