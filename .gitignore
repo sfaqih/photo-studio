@@ -16,6 +16,7 @@ electron/signs
 public/templates
 public/frames
 public/filters
+/.yarn
 
 # Editor directories and files
 .vscode/*
