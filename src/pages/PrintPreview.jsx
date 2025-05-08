@@ -271,30 +271,30 @@ const PrintPreview = () => {
   };
 
   return (
-    <div className="print-preview-container min-h-screen flex flex-col items-center justify-center mx-auto min-w-screen px-4 py-6">
-      <div className='w-full'>
-        <div className="flex justify-between items-center mb-6">
-          <button 
-            className="back-button flex items-center text-pink-500 hover:text-pink-600"
-            onClick={handleBackToFilters}
-            disabled={printing}
-          >
-            <ArrowLeftCircle size={24} className="mr-2" />
-            <span>Kembali ke Filter</span>
-          </button>
-          <h1 className="filter-title text-3xl font-bold text-center mb-6 text-black">Cetak Preview</h1>
-          <div className="w-24"></div> {/* Spacer for alignment */}
-        </div>
-        
-        <div className="preview-container relative mb-8">
+    <>
+    <div className='h-full max-w-screen'>
+    <div className="flex justify-between items-center mb-auto">
+    <button 
+      className="back-button flex items-center text-pink-500 hover:text-pink-600 px-3"
+      onClick={handleBackToFilters}
+      disabled={printing}
+    >
+      <ArrowLeftCircle size={24} className="mr-2" />
+      <span>Kembali ke Filter</span>
+    </button>
+    <h1 className="filter-title text-3xl font-bold text-center mb-6 text-black">Cetak Preview</h1>
+    <div className="w-24"></div> {/* Spacer for alignment */}
+    </div>
+    <div className="print-preview-container max-h-screen flex items-center justify-center mx-auto min-w-screen w-full">
+        <div className="preview-container relative mb-8 w-1/2">
           {Object.keys(filteredPhotos).length > 0 && renderCompositeImage()}
           {loading && (
            <Button variant="text" size="lg" loading={true}>
            Loading
          </Button>
           )}
-        </div>
-        
+        </div>    
+        <div className='container w-1/2'>
         <div className="printer-selection max-w-lg mx-auto mb-6">
           <h2 className="text-xl font-semibold mb-3">Pilih Printer</h2>
           {availablePrinters.length === 0 ? (
@@ -360,8 +360,10 @@ const PrintPreview = () => {
             )}
           </button>
         </div>
-      </div>
+        </div>  
     </div>
+    </div>
+    </>
   );
 };
 
