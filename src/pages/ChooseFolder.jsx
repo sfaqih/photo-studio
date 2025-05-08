@@ -6,16 +6,10 @@ export default function ChooseFolder() {
   const [dirName, setDirName] = useState(null);
   const navigate = useNavigate();
 
-  const loadImageAsBase64 = async (filePath) => {
-    const base64 = await window.electronAPI.loadImageBase64(filePath);
-    return base64;
-  };
-
   const onChoose = async () => {
     const files = await window.electronAPI.chooseFolder(); // dari folder
-    const dirName = files.dirPath.split('/');
 
-    setDirName(dirName[dirName.length - 1]);
+    setDirName(files.basename);
     setDirPath(files.dirPath);
 
     localStorage.setItem("CustomerFolder", `${files.dirPath}/compressed`);

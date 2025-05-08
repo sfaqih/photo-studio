@@ -17,6 +17,7 @@ ipcMain.handle("dialog:openFolder", async () => {
   if (result.canceled || result.filePaths.length === 0) return [];
 
   const dirPath = result.filePaths[0];
+  const basename = path.basename(dirPath)
   const files = fs.readdirSync(dirPath);
   const imageFiles = files
     .filter((file) => /\.(jpe?g|png|webp)$/i.test(file))
@@ -27,6 +28,7 @@ ipcMain.handle("dialog:openFolder", async () => {
 
   const resultFolder = {
     dirPath,
+    basename,
     imageFiles
   }
 
