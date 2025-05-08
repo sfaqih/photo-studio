@@ -11,7 +11,11 @@ node_modules
 dist
 react-dist
 dist-ssr
+electron/signs
 *.local
+public/templates
+public/frames
+public/filters
 
 # Editor directories and files
 .vscode/*

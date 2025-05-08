@@ -31,6 +31,9 @@ export default defineConfig({
   build: {
     outDir: 'react-dist',
     rollupOptions: {
+      external: [
+        "sharp"
+      ],
       input: {
         main: path.resolve(__dirname, 'index.html'),
         template: path.resolve(__dirname, 'template.html')

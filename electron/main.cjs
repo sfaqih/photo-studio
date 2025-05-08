@@ -145,7 +145,7 @@ async function getPrinters() {
 function createWindow() {
     const primaryDisplay = screen.getPrimaryDisplay();
     const { width, height } = primaryDisplay.workAreaSize
-    
+
     const win = new BrowserWindow({
       width: width,
       height: height,
@@ -162,8 +162,8 @@ function createWindow() {
     
     win.maximize();
     win.setTitle("Photo Studio");
-    // win.loadFile(path.join(__dirname, '../react-dist/index.html'));
-    win.loadURL("http://localhost:5173/"); // If running React dev server
+    win.loadFile(path.join(__dirname, '../react-dist/index.html'));
+    // win.loadURL("http://localhost:5173/"); // If running React dev server
     // mainWindow = win
     // win.loadURL("http://localhost:5173/template");
     
