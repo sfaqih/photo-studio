@@ -97,6 +97,7 @@ const PrintPreview = () => {
       
       // Apply saved filter to images if needed
       applySelectedFilter(results);
+      setLoading(false);
     };
 
     loadAllImages();
@@ -126,7 +127,6 @@ const PrintPreview = () => {
         }
       }
       setFilteredPhotos(filtered);
-      setLoading(false);
     } catch (error) {
       console.error("Error applying filters:", error);
     }
@@ -173,9 +173,9 @@ const PrintPreview = () => {
         mimeType: 'image/jpeg',
         quality: 0.95
       });
-      
+      const custFolder = photoStudioSession.dirPath;
       // Call Electron's print function
-      const printResult = await window.electronAPI.printPhoto({
+      const printResult = await electron.printPhoto({
         printerName: selectedPrinter,
         imageData: dataURL,
         options: {
@@ -187,7 +187,8 @@ const PrintPreview = () => {
           landscape: false,
           marginsType: 1, // Minimum margins
           scaleFactor: 100,
-        }
+        },
+        custFolder
       });
       
       if (printResult.success) {
@@ -287,7 +288,7 @@ const PrintPreview = () => {
     </div>
     <div className="print-preview-container max-h-screen flex items-center justify-center mx-auto min-w-screen w-full">
         <div className="preview-container relative mb-8 w-1/2">
-          {Object.keys(filteredPhotos).length > 0 && renderCompositeImage()}
+          {Object.keys(resolvedImages).length > 0 && renderCompositeImage()}
           {loading && (
            <Button variant="text" size="lg" loading={true}>
            Loading
