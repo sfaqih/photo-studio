@@ -7,7 +7,8 @@ const PhotoStudio = createContext();
 export const PhotoStudioProvider = ({ children }) => {
   const [photoStudioSession, setPhotoStudioSession] = useState({
     frames: [],
-    dirPath: null
+    dirPath: null,
+    printDirPath: null
   });
 
   return (

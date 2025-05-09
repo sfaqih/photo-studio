@@ -158,7 +158,7 @@ const PrintPreview = () => {
 
   // Print the current canvas
   const handlePrint = async () => {
-    if (!stageRef.current || !selectedPrinter) {
+    if (!stageRef.current) {
       setPrintError("Cannot print: No printer selected or canvas not ready");
       return;
     }
@@ -173,12 +173,13 @@ const PrintPreview = () => {
         mimeType: 'image/jpeg',
         quality: 0.95
       });
-      const custFolder = photoStudioSession.dirPath;
+      console.debug("dataURL: ", dataURL);
+      const custFolder = photoStudioSession.printDirPath;
       // Call Electron's print function
-      const printResult = await electron.printPhoto({
+      const payload = {
         printerName: selectedPrinter,
         imageData: dataURL,
-        options: {
+        paperSize: {
           silent: true,
           printBackground: true,
           deviceName: selectedPrinter,
@@ -189,7 +190,9 @@ const PrintPreview = () => {
           scaleFactor: 100,
         },
         custFolder
-      });
+      };
+      console.debug("payload: ", payload);
+      const printResult = await electron.printPhoto(payload);
       
       if (printResult.success) {
         // Navigate to success screen or show success message
@@ -346,7 +349,7 @@ const PrintPreview = () => {
           <button 
             className="print-button bg-pink-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-pink-600 transition-colors disabled:opacity-50 flex items-center"
             onClick={handlePrint}
-            disabled={printing || !selectedPrinter || loading}
+            disabled={printing || loading}
           >
             {printing ? (
               <>

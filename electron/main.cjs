@@ -5,7 +5,6 @@ const fs = require("fs");
 const db = require('./db.cjs');
 const log = require('electron-log');
 const { compressImagesFromFolder } = require('./utils.js');
-const { printPhoto } = require("./ipcHandlers.js");
 
 // Setup logging
 log.transports.file.level = 'info';
@@ -38,7 +37,7 @@ ipcMain.handle("dialog:openFolder", async () => {
 });
 
 ipcMain.handle("directory:readImages", async (event, dirPath) => {
-  
+
   const files = fs.readdirSync(dirPath);
   const imageFiles = files
     .filter((file) => /\.(jpe?g|png|webp)$/i.test(file))
@@ -146,46 +145,46 @@ async function getPrinters() {
 // let mainWindow;
 
 function createWindow() {
-    const primaryDisplay = screen.getPrimaryDisplay();
-    const { width, height } = primaryDisplay.workAreaSize
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize
 
-    const win = new BrowserWindow({
-      width: width,
-      height: height,
-      webPreferences: {
-        preload: path.join(__dirname, "preload.js"),
-        contextIsolation: true,
-        nodeIntegration: false,
-      },
-      fullscreen: true,
-      fullScreenable: true
-    });
-    console.log("[main] preloadPath:", path.join(__dirname, "preload.js")); 
-  
-    
-    win.maximize();
-    win.setTitle("Photo Studio");
-    win.loadFile(path.join(__dirname, '../react-dist/index.html'));
-    // win.loadURL("http://localhost:5173/"); // If running React dev server
-    // mainWindow = win
-    // win.loadURL("http://localhost:5173/template");
-    
-    // win.loadURL("http://localhost:5173/select-template");
+  const win = new BrowserWindow({
+    width: width,
+    height: height,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+    fullscreen: true,
+    fullScreenable: true
+  });
+  console.log("[main] preloadPath:", path.join(__dirname, "preload.js"));
+
+
+  win.maximize();
+  win.setTitle("Photo Studio");
+  win.loadFile(path.join(__dirname, '../react-dist/index.html'));
+  // win.loadURL("http://localhost:5173/"); // If running React dev server
+  // mainWindow = win
+  // win.loadURL("http://localhost:5173/template");
+
+  // win.loadURL("http://localhost:5173/select-template");
 }
 
 ipcMain.handle('get-printers', async () => {
-      
+
   try {
     const printers = await getPrinters();
-    
+
     // Tambahkan informasi status siap
     return printers.map(printer => {
       return {
         ...printer,
         isReady: printer.status === 0, // Status 0 biasanya berarti printer siap
         // Cek apakah ini printer EPSON L8050 (prioritaskan)
-        isEpsonL8050: printer.name.includes('EPSON L8050') || 
-                      printer.displayName.includes('EPSON L8050')
+        isEpsonL8050: printer.name.includes('EPSON L8050') ||
+          printer.displayName.includes('EPSON L8050')
       };
     });
   } catch (error) {
@@ -238,6 +237,105 @@ app.on('activate', () => {
 
 
 // IPC handler untuk mencetak foto
-ipcMain.handle('print-photo', async (event, { printerName, imageData, paperSize }) => {
-  return printPhoto(printerName, imageData, paperSize);
+ipcMain.handle('print-photo', async (event, { printerName, imageData, paperSize, custFolder }) => {
+  console.debug('printerName: ', printerName)
+  console.debug('paperSize: ', paperSize)
+  console.debug('custFolder: ', custFolder)
+
+  if (!fs.existsSync(custFolder)) {
+    fs.mkdirSync(custFolder);
+  }
+
+  try {
+    // Buat tempat untuk menyimpan gambar sementara
+    const tempImgPath = path.join(custFolder, `final-${Date.now()}.jpg`);
+
+    // Simpan gambar dari dataUrl
+    const base64Data = imageData.split(';base64,').pop();
+    fs.writeFileSync(tempImgPath, base64Data, { encoding: 'base64' });
+
+    // Setup opsi cetak
+    const printOptions = {
+      silent: true, // Tidak tampilkan dialog print
+      printBackground: true,
+      deviceName: printerName,
+      pageSize: {
+        width: paperSize.pageSize.width / 300 * 25.4, // Convert DPI ke mm
+        height: paperSize.pageSize.height / 300 * 25.4
+      },
+      margins: {
+        marginType: 'custom',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0
+      }
+    };
+
+    // Buat window temporary untuk mencetak
+    const printWindow = new BrowserWindow({
+      width: paperSize.pageSize.width,
+      height: paperSize.pageSize.height,
+      show: false
+    });
+
+    // Load HTML khusus untuk mencetak
+    const htmlContent = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <style>
+                body, html {
+                  margin: 0;
+                  padding: 0;
+                  overflow: hidden;
+                  width: 100%;
+                  height: 100%;
+                }
+                img {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: contain;
+                }
+              </style>
+            </head>
+            <body>
+              <img src="${tempImgPath}" />
+            </body>
+          </html>
+        `;
+
+    // Simpan HTML ke file temp
+    const tempHtmlPath = path.join(custFolder, `print-${Date.now()}.html`);
+    fs.writeFileSync(tempHtmlPath, htmlContent);
+
+    // Load HTML dan cetak
+    await printWindow.loadFile(tempHtmlPath);
+
+    // Tunggu sampai konten siap
+    printWindow.webContents.on('did-finish-load', () => {
+      setTimeout(() => {
+        printWindow.webContents.print(printOptions, (success, errorType) => {
+          // Cleanup file temporary
+          try {
+            fs.unlinkSync(tempImgPath);
+            fs.unlinkSync(tempHtmlPath);
+          } catch (err) {
+            console.error('Error cleaning temp files:', err);
+          }
+
+          printWindow.close();
+
+          if (!success) {
+            throw new Error(`Print failed: ${errorType}`);
+          }
+        });
+      }, 1000); // Tunggu sebentar sampai gambar benar-benar dimuat
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error printing photo:', error);
+    throw error;
+  }
 });

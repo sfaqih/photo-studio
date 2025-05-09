@@ -1,16 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { usePhotoStudio } from "../contexts/studio";
 
 export default function ChooseFolder() {
   const [dirPath, setDirPath] = useState(null);
   const [dirName, setDirName] = useState(null);
   const navigate = useNavigate();
+  const {setPhotoStudioSession} = usePhotoStudio();
 
   const onChoose = async () => {
     const files = await window.electronAPI.chooseFolder(); // dari folder
 
     setDirName(files.basename);
     setDirPath(files.dirPath);
+    setPhotoStudioSession({
+      printDirPath: `${files.dirPath}/print`
+    });
 
     localStorage.setItem("CustomerFolder", `${files.dirPath}/compressed`);
   };

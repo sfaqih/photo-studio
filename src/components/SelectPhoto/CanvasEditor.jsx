@@ -391,7 +391,8 @@ const CanvasEditor = ({
 
         setPhotoStudioSession({
             frames,
-            dirPath: localStorage.getItem("CustomerFolder") || null
+            dirPath: localStorage.getItem("CustomerFolder") || null,
+            printDirPath: photoStudioSession.printDirPath
         });
 
         return navigate('/select-filter');

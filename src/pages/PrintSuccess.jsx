@@ -34,8 +34,8 @@ const PrintSuccess = () => {
   };
   
   return (
-    <div className="print-success-container min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-      <div className="success-card bg-white rounded-lg shadow-lg p-8 text-center max-w-md">
+    <div className="container min-h-screen flex flex-col items-center justify-center w-full min-w-screen bg-gray-50 p-4">
+      <div className="success-card bg-white rounded-lg shadow-lg p-8 text-center">
         <div className="success-icon text-green-500 mb-4">
           <CheckCircle size={80} className="mx-auto" />
         </div>
